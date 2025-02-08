@@ -1,167 +1,99 @@
-# Hotwire Chat App: Scalable Infrastructure with Docker
+# Tailwind & Devise & Registrations Setup - Episode 1
 
-## Introduction
-This guide walks you through setting up a fully containerized infrastructure for a Hotwire-powered chat application using Docker. You will configure PostgreSQL, pgAdmin, and Ruby containers, ensuring smooth communication between services. By the end, your environment will be ready for development and deployment.
+## Overview
 
----
+In this episode, we will install and configure **Tailwind CSS** and **Devise** for user authentication in a Ruby on Rails application. Additionally, we will manage user sessions and style the sign-up/sign-in forms.
 
-## Prerequisites
-- **Ubuntu** (or any Linux-based system)
-- **Docker & Docker Compose** installed
-- **VSCode** with **Dev Containers** extension
+## Setup Instructions
 
----
-
-## 1. Cleanup (Optional)
-```sh
-docker rm -f $(docker ps -a -q)
-docker system prune -a
-clear
+### 1. Branching
+Switch to the project branch for this episode:
+```bash
+git checkout -b episode-1-tailwind-and-devise
 ```
+### 2. Installing Tailwind CSS
 
-## 2. Fetch Ruby Image
-```sh
-docker pull ruby:3.2.3
-ruby -v  # Should return ruby 3.2.3
+Install Tailwind CSS in your Rails application:
 ```
-
-## 3. Set Up File Structure
-```sh
-mkdir -p ~/Documents/rails_projects/hotwire/chat_app
-cd ~/Documents/rails_projects/hotwire/chat_app
-code .
+bundle add tailwindcss-rails
+rails tailwindcss:install
 ```
-
-## 4. Create `docker-compose.yml`
-```yaml
-services:
-  pgadmin_service:
-    image: dpage/pgadmin4
-    container_name: my-pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: postgres
-    ports:
-      - "15432:80"
-    networks:
-      - my-network
-    volumes:
-      - ./pgadmin-data:/var/lib/pgadmin
-
-  postgres_service:
-    image: postgres
-    container_name: my-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      TZ: America/New_York
-    ports:
-      - "5433:5432"
-    networks:
-      - my-network
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
-
-  ruby_container:
-    image: ruby:latest
-    container_name: ruby-container
-    stdin_open: true
-    tty: true
-    command: /bin/bash
-    ports:
-      - "3001:3000"
-    networks:
-      - my-network
-    volumes:
-      - .:/data/chat_app
-
-networks:
-  my-network:
-    driver: bridge
+Start the Rails server:
 ```
-
-## 5. Set Permissions
-```sh
-mkdir -p ./pgadmin-data
-chmod -R 777 ./pgadmin-data
-sudo chown -R $USER:$USER .
-clear
+rails server -b 0.0.0.0 -p 3000
 ```
-
-## 6. Running Docker Compose
-```sh
-docker compose up --build
+Test the setup:
 ```
-
-## 7. Setting Up Rails
-Inside the Ruby container:
-```sh
-apt-get update 
-gem install rails 
-rails -v  # Should return Rails 8.0.1
+rails g controller pages index
 ```
-
-Create the Rails app:
-```sh
-cd ..
-rails new chat_app -d postgresql
-cd chat_app
-bundle install
+Add the following to config/routes.rb:
 ```
-
-## 8. Database Configuration (`config/database.yml`)
-```yaml
-development:
-  adapter: postgresql
-  encoding: unicode
-  pool: 5
-  database: chat_app_development
-  username: postgres
-  password: postgres
-  host: <YOUR_POSTGRES_IP>
-  port: 5432
+root 'pages#index'
 ```
-Find the PostgreSQL container IP:
-```sh
-docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' my-postgres
+In the app/views/pages/index.html.erb file:
 ```
+<h1 class="text-3xl font-bold underline">Hello world!</h1>
+```
+Recompile assets:
+```
+rails assets:precompile
+```
+Alternatively, you can use the Tailwind CDN:
+```
+<script src="https://cdn.tailwindcss.com"></script>
+```
+### 3. Installing Devise
 
-## 9. Migrate Database
-```sh
+Install the Devise gem:
+```
+bundle add devise
+rails generate devise:install
+rails g devise User
 rails db:migrate
-docker ps -a  # Ensure all services are running
+rails g devise:views
 ```
-
-## 10. Running the App
-```sh
-rails s -b 0.0.0.0 -p 3000
+Start the Rails server:
 ```
-
-If port 3000 is in use:
-```sh
-sudo lsof -i :3000
-sudo kill <PID>
+rails server -b 0.0.0.0 -p 3000
 ```
+### 4. Authenticating Users
 
-## 11. Accessing the Application
-- **Rails App:** [http://0.0.0.0:3000](http://0.0.0.0:3000)
-- **pgAdmin:** [http://localhost:15432](http://localhost:15432) (Login: `admin@example.com` / `postgres`)
+In app/controllers/pages_controller.rb, add:
+```
+before_action :authenticate_user!
+```
+### 5. Styling the Forms
 
----
+Customize the Sign-Up and Sign-In forms using Tailwind CSS:
+```
+    app/views/devise/registrations/new.html.erb
+    app/views/devise/sessions/new.html.erb
+```
+### 6. Removing Unnecessary Pages
 
-## Architecture Overview
-- **PostgreSQL Container**: Database storage
-- **PGAdmin Container**: Web-based database management
-- **Ruby Container**: Rails application environment
-- **Docker Network**: Ensures inter-container communication
+Clean up by removing the scaffolded page controller:
+```
+rails d scaffold page
+rails g scaffold Room name
+```
+Set the Room index page as the root in config/routes.rb:
+```
+root "rooms#index"
+```
+### 7. Sidebar
 
----
+Create a sidebar in app/views/shared/_side_bar.html.erb:
+```
+<p>Side Bar</p>
+```
+### 8. Clean Up
 
-## Next Steps
-In the next tutorial, we will build the chat application's core functionalities. Stay tuned!
+Remove unnecessary JSON files and clean up the controller actions in app/controllers/rooms_controller.rb.
+Next Steps
 
-🎉 **Congratulations! Your infrastructure is ready!** 🎉
+In the next episode, we will explore Hotwire and integrate the sidebar into the real app.
 
+For the full source code and to get started, visit the repo.
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
