@@ -1,0 +1,44 @@
+services:
+  pgadmin_service:
+    image: dpage/pgadmin4
+    container_name: my-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    ports:
+      - "15432:80"
+    networks:
+      - my-network
+    volumes:
+      - ./pgadmin-data:/var/lib/pgadmin
+
+  postgres_service:
+    image: postgres
+    container_name: my-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/New_York
+    ports:
+      - "5433:5432"
+    networks:
+      - my-network
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data  # Optional: persist database
+
+  ruby_container:
+    image: ruby:latest
+    container_name: ruby-container
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    ports:
+      - "3001:3000"
+    networks:
+      - my-network
+    volumes:
+      - .:/data/chat_app
+
+networks:
+  my-network:
+    driver: bridge
