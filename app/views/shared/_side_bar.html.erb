@@ -1,1 +1,12 @@
-<p>Side Bar</p>
+<nav class="w-60 flex flex-col items-center justify-between border border-blue-500">
+  <!-- Render "My Rooms" section at the top -->
+  <%= render "shared/user_rooms" %>
+
+  <!-- Render the room form section at the bottom -->
+  <%= turbo_frame_tag 'room_form' do %>
+    <section class="flex flex-col items-center justify-center gap-2 mb-5 text-center mt-auto">
+      <h3 class="font-semibold text-xs">Want to start a new conversation?</h3>    
+      <%= link_to 'Create Room', new_room_path, id: 'new_room', class: 'px-3 py-1 bg-green-200 font-semibold text-xs' %>
+    </section>
+  <% end %>
+</nav>
