@@ -1,168 +1,124 @@
-## Styling the Sidebar & Mastering Hotwire Integration - Episode 2
-### Enhancing UI with Hotwire and Crafting a Sleek Sidebar
+# Turbo-Powered Chat Rooms with Hotwire - Episode 4
 
+### Overview
 
-In this episode, we'll pick up from where we left off and dive into enhancing the UI
+This tutorial walks through creating real-time chat rooms in a Rails app using Turbo Frames and Turbo Streams.
 
-using Hotwire and creating a sleek sidebar for our chat app. 
-
-Let's get started!
-
----
-
-#### 1. Why Turbo Frame?
-
-Turbo Frames ensure that when actions related to `rooms_controller` happen, only the section of the page within the Turbo Frame updates dynamically without refreshing the entire page.
-
-#### 1: Room Index
-Edit the `app/views/rooms/index.html.erb` file to include a Turbo Frame:
-
-```erb
-<%= turbo_frame_tag 'rooms_controller' do %>
-  <main class="bg-indigo-100 flex w-full h-screen">
-    <%= render "shared/side_bar" %>
-    
-    <section class="flex flex-col items-center justify-center gap-5 h-screen">
-      <%= link_to "New room", new_room_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
-    </section>
-  </main>
-<% end %>
+### Features
 ```
-Explanation:
+Turbo Frames: Seamlessly update UI elements
 
-    This code defines a Turbo Frame and wraps a section of the UI inside it, enabling dynamic updates of just this section.
+Turbo Streams: Real-time room creation and updates
 
-##### Follow the First Rule of Turbo
+Stimulus: Enhance form handling
 ```
-Rule #1: When clicking a link within a Turbo Frame, Turbo expects a frame with the identical ID on the target page.
+### Setup
+
+Clone the repository:
 ```
-#### 2: New Room View
-
-In app/views/rooms/new.html.erb, add the following:
+git clone <repo-url>
+cd chat_app
+bundle install
+rails db:setup
 ```
-<%= turbo_frame_tag 'rooms_controller' do %>
-  <% content_for :title, "New room" %>
-
-  <div class="md:w-2/3 w-full">
-    <h1 class="font-bold text-4xl">New room</h1>
-
-    <%= render "form", room: @room %>
-
-    <%= link_to "Back to rooms", rooms_path, class: "ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  </div>
-<% end %>
+Start the Rails server:
 ```
-#### 3. Create Sidebar Partial
-
-Create the sidebar with a room creation section in app/views/shared/_side_bar.html.erb:
+rails s
 ```
-<nav class="w-60 flex flsx-col items-center justify-center border border-blue-500">
- <%= render "shared/create_room" %>
-</nav>
-```
-#### 4. Create Room Form Partial
+### Implementation Steps
 
-Create the room creation form in app/views/shared/_create_room.html.erb:
+#### 1. Display the "Create Room" Button
 
-<h3>Create Room</h3>
-
-#### 5. Design the Left Sidebar
-
-Modify the app/views/shared/_create_room.html.erb partial to display the "Create Room" link:
+Wrap the button in a Turbo Frame:
 ```
 <%= turbo_frame_tag 'room_form' do %>
-    <section class="flex flex-col items-center justify-center gap-2 mb-5">
-        <h3 class="font-semibold text-sm text-center">Want to start a new conversation?</h3>    
-        <%= link_to 'Create Room', new_room_path,  id:'new_room', class: 'px-3 py-1 bg-green-200 font-semiblod text-sm' %>
-    </section>
+  <section>
+    <h3>Start a new conversation</h3>
+    <%= link_to 'Create Room', new_room_path, class: 'button' %>
+  </section>
 <% end %>
 ```
-Update app/views/rooms/new.html.erb accordingly:
+#### 2. Load the Room Creation Form
+
+In rooms/new.html.erb:
 ```
 <%= turbo_frame_tag 'room_form' do %>
-  <% content_for :title, "New room" %>
-
-  <div class="md:w-2/3 w-full">
-    <h1 class="font-bold text-4xl">New room</h1>
-
-    <%= render "form", room: @room %>
-
-    <%= link_to "Back to rooms", rooms_path, class: "ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  </div>
-<% end %>
-```
-#### 6. Improving the Design
-
-Refine the design in app/views/shared/_create_room.html.erb:
-```
-<%= turbo_frame_tag 'room_form' do %>
-    <section class="flex flex-col items-center justify-center gap-2 mb-5 text-center">
-      <h3 class="font-semibold text-xs">Want to start a new conversation?</h3>    
-      <%= link_to 'Create Room', new_room_path, id: 'new_room', class: 'px-3 py-1 bg-green-200 font-semibold text-xs' %>
-    </section>
-<% end %>
-```
-Update app/views/rooms/new.html.erb to display a better layout:
-```
-<%= turbo_frame_tag 'room_form' do %>
-  <h4 class="text-sm">New room</h4>
+  <h4>Create Room</h4>
   <%= render "form", room: @room %>
 <% end %>
 ```
-#### 7. Render Two Partials in the Sidebar
+#### 3. Submit the Form (Turbo Streams)
 
-Now, we will render two partials inside the sidebar. Edit app/views/shared/_side_bar.html.erb:
+Handle room creation in rooms_controller.rb:
 ```
-<nav class="w-60 flex flex-col items-start justify-between border border-blue-500">
-  <!-- Render "My Rooms" section at the top -->
-  <%= render "shared/user_rooms" %>
+def create
+  @room = Room.new(room_params)
+  respond_to do |format|
+    if @room.save
+      format.turbo_stream { render turbo_stream: turbo_stream.append('rooms', partial: 'shared/room', locals: { room: @room }) }
+    else
+      format.turbo_stream { render turbo_stream: turbo_stream.replace('room_form', partial: 'rooms/form', locals: { room: @room }) }
+    end
+  end
+end
+```
+#### 4. Display Created Rooms
 
-  <!-- Render the room form section at the bottom -->
-  <%= turbo_frame_tag 'room_form' do %>
-    <section class="flex flex-col items-center justify-center gap-2 mb-5 text-center mt-auto">
-      <h3 class="font-semibold text-xs">Want to start a new conversation?</h3>    
-      <%= link_to 'Create Room', new_room_path, id: 'new_room', class: 'px-3 py-1 bg-green-200 font-semibold text-xs' %>
-    </section>
+In _user_rooms.html.erb:
+```
+<div id="rooms">
+  <% @rooms.each do |room| %>
+    <%= render 'shared/room', room: room %>
   <% end %>
-</nav>
-```
-#### 8. Create Partial to Display List of User's Rooms
-
-In Rails Console, create some rooms:
-```
-rails c
-Room.create(name: "Room 1")
-Room.create(name: "Room 2")
-Room.all.count
-```
-Create the partials to display the rooms:
-app/views/shared/_user_rooms.html.erb:
-```
-<section class="flex flex-col w-full items-center">
-    <h3 class="text-xs font-semibold mt-3 text-center mb-2">My Rooms</h3>
-
-    <div class="flex flex-col px-5 gap-2 w-full">
-        <% @rooms.each do |room| %>
-            <%= render 'shared/room', room: room %>
-        <% end %>
-    </div>
-</section>
-```
-app/views/shared/_room.html.erb:
-```
-<div class="font-semibold text-xs">
-    <%= room.name %>
 </div>
 ```
-Conclusion
+#### 5. Show Room Details & Allow Updates
 
-In the next episode, we'll implement streams to automatically update the room list when a new room is created by the user.
+In _room.html.erb:
+```
+<%= turbo_frame_tag "room_#{room.id}" do %>
+  <div>
+    <%= room.name %>
+    <%= link_to 'Edit', edit_room_path(room), class: 'edit-btn' %>
+  </div>
+<% end %>
+```
+#### 6. Reset the Form After Submission (Stimulus)
 
-But that's all for now!
-License
+Create form_controller.js:
+```
+import { Controller } from "@hotwired/stimulus"
+export default class extends Controller {
+  resetComponent() {
+    setTimeout(() => this.element.reset(), 75);
+  }
+}
+```
+Use it in the form:
+```
+<%= form_with model: @room, data: { controller: 'form', action: 'submit->form#resetComponent' } do |f| %>
+```
+#### 7. Validate Room Name
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-## License
+In room.rb:
+```
+class Room < ApplicationRecord
+  validates :name, presence: true
+end
+```
+#### 8. Update Rooms via Turbo Streams
 
-[MIT](https://choosealicense.com/licenses/mit/)
+In rooms_controller.rb:
+```
+def update
+  if @room.update(room_params)
+    render turbo_stream: turbo_stream.replace("room_#{@room.id}", partial: 'shared/room', locals: { room: @room })
+  else
+    render :edit
+  end
+end
+```
+#### Final Thoughts
+
+With Turbo and Stimulus, we built a chat app with real-time updates and smooth UI interactions. 🚀
 
