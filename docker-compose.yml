@@ -1,44 +1,53 @@
+networks:
+  my-network:
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+
 services:
-  pgadmin_service:
+  db-service:
+    image: postgres
+    container_name: my-postgres
+    restart: always
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.100
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin-service:
     image: dpage/pgadmin4
     container_name: my-pgadmin
+    restart: always
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.101
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: postgres
     ports:
-      - "15432:80"
-    networks:
-      - my-network
-    volumes:
-      - ./pgadmin-data:/var/lib/pgadmin
+      - "5050:80"
 
-  postgres_service:
-    image: postgres
-    container_name: my-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      TZ: America/New_York
-    ports:
-      - "5433:5432"
-    networks:
-      - my-network
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data  # Optional: persist database
-
-  ruby_container:
+  ruby-app-service:
     image: ruby:latest
-    container_name: ruby-container
-    stdin_open: true
-    tty: true
-    command: /bin/bash
+    container_name: rails-container
+    restart: always
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.102
     ports:
       - "3001:3000"
-    networks:
-      - my-network
     volumes:
-      - .:/data/chat_app
+      - .:/app
+    working_dir: /app
+    command: bash -c "bundle install && rails server -b 0.0.0.0"
+    depends_on:
+      - db-service
 
-networks:
-  my-network:
-    driver: bridge
+volumes:
+  postgres_data:
