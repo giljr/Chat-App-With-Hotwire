@@ -1,8 +1,7 @@
 <%= turbo_frame_tag "room_#{room.id}" do %>
-    <div class="font-semibold text-xs">
-        <%= link_to room_path(room), class: 'font-semibold text-xs', data: {turbo_frame: 'rooms_controller'} do %>
-            <%= room.name %>
-        <% end %>
-        <%= link_to 'Edit', edit_room_path(room), id: "edit_room_#{room.id}", class: 'text-xs font-medium bg-white text-gray-700 border border-gray-300 rounded-lg px-3 py-1 shadow-sm hover:bg-gray-100'%>
-    </div>
+  <%= link_to room_path(room), class:"text-xs", data: { turbo_frame: 'rooms_controller' } do %>
+    <%= room.name %>
+  <% end %>
+ <%= link_to 'Edit', edit_room_path(room), id: "edit_room_#{room.id}", class: 'text-xs font-medium bg-white text-gray-700 border border-gray-300 rounded-lg px-3 py-1 shadow-sm hover:bg-gray-100'%>
+  
 <% end %>

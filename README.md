@@ -1,124 +1,33 @@
-# Turbo-Powered Chat Rooms with Hotwire - Episode 4
 
-### Overview
+# Episode 5: Real-Time Room Updates and User Interactions
 
-This tutorial walks through creating real-time chat rooms in a Rails app using Turbo Frames and Turbo Streams.
+In this episode, we focused on implementing real-time features for room updates and user interactions within a system. Key enhancements include:
 
-### Features
+## Features
 ```
-Turbo Frames: Seamlessly update UI elements
+- **Real-time Room Updates**: Users can now be added to rooms dynamically, and the updates are immediately reflected in the UI using Turbo Streams.
+- **Turbo Stream Integration**: We leveraged Turbo Streams to provide live updates on the rooms, without requiring page reloads, improving the user experience.
+- **Sidebar Enhancements**: The sidebar now shows the user's rooms in real-time, with the ability to interact and manage them.
+- **Room and User Associations**: We created a robust association between users and rooms, ensuring that changes in the backend trigger immediate UI updates.
+```
+## What's Next
 
-Turbo Streams: Real-time room creation and updates
+In the next episode, we will dive into handling messages within the system, enabling users to communicate in real-time within the rooms.
 
-Stimulus: Enhance form handling
-```
-### Setup
+## Setup
 
-Clone the repository:
-```
-git clone <repo-url>
-cd chat_app
-bundle install
-rails db:setup
-```
-Start the Rails server:
-```
-rails s
-```
-### Implementation Steps
+To get started with this project, follow these steps:
 
-#### 1. Display the "Create Room" Button
+### 1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/project-name.git
+```
+## License
 
-Wrap the button in a Turbo Frame:
-```
-<%= turbo_frame_tag 'room_form' do %>
-  <section>
-    <h3>Start a new conversation</h3>
-    <%= link_to 'Create Room', new_room_path, class: 'button' %>
-  </section>
-<% end %>
-```
-#### 2. Load the Room Creation Form
+[MIT](https://choosealicense.com/licenses/mit/)
 
-In rooms/new.html.erb:
-```
-<%= turbo_frame_tag 'room_form' do %>
-  <h4>Create Room</h4>
-  <%= render "form", room: @room %>
-<% end %>
-```
-#### 3. Submit the Form (Turbo Streams)
 
-Handle room creation in rooms_controller.rb:
-```
-def create
-  @room = Room.new(room_params)
-  respond_to do |format|
-    if @room.save
-      format.turbo_stream { render turbo_stream: turbo_stream.append('rooms', partial: 'shared/room', locals: { room: @room }) }
-    else
-      format.turbo_stream { render turbo_stream: turbo_stream.replace('room_form', partial: 'rooms/form', locals: { room: @room }) }
-    end
-  end
-end
-```
-#### 4. Display Created Rooms
+## Authors
 
-In _user_rooms.html.erb:
-```
-<div id="rooms">
-  <% @rooms.each do |room| %>
-    <%= render 'shared/room', room: room %>
-  <% end %>
-</div>
-```
-#### 5. Show Room Details & Allow Updates
-
-In _room.html.erb:
-```
-<%= turbo_frame_tag "room_#{room.id}" do %>
-  <div>
-    <%= room.name %>
-    <%= link_to 'Edit', edit_room_path(room), class: 'edit-btn' %>
-  </div>
-<% end %>
-```
-#### 6. Reset the Form After Submission (Stimulus)
-
-Create form_controller.js:
-```
-import { Controller } from "@hotwired/stimulus"
-export default class extends Controller {
-  resetComponent() {
-    setTimeout(() => this.element.reset(), 75);
-  }
-}
-```
-Use it in the form:
-```
-<%= form_with model: @room, data: { controller: 'form', action: 'submit->form#resetComponent' } do |f| %>
-```
-#### 7. Validate Room Name
-
-In room.rb:
-```
-class Room < ApplicationRecord
-  validates :name, presence: true
-end
-```
-#### 8. Update Rooms via Turbo Streams
-
-In rooms_controller.rb:
-```
-def update
-  if @room.update(room_params)
-    render turbo_stream: turbo_stream.replace("room_#{@room.id}", partial: 'shared/room', locals: { room: @room })
-  else
-    render :edit
-  end
-end
-```
-#### Final Thoughts
-
-With Turbo and Stimulus, we built a chat app with real-time updates and smooth UI interactions. 🚀
+- [@jaythree](https://github.com/giljr)
 

@@ -5,30 +5,30 @@
   </section>
 
   <section class="bg-white p-8 rounded-lg shadow-md flex flex-col items-center w-96">
-    <h2 class="font-bold text-2xl mb-5">Log in</h2>
+    <h2 class="font-bold mb-5">Log in</h2>
 
     <%= form_for(resource, as: resource_name, url: session_path(resource_name), class: 'flex flex-col w-full') do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
 
       <div class="flex gap-1 my-2 items-center w-full">
-        <%= f.label :email, class: 'font-semibold text-sm w-24' %>
-        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "text-sm font-medium rounded w-full border border-gray-300 p-2" %>
+        <%= f.label :email, class: 'font-semibold text-xs w-24' %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "text-xs font-medium rounded w-full border border-gray-300 p-2" %>
       </div>
 
       <div class="flex gap-1 my-2 items-center w-full">
-        <%= f.label :password, class: 'font-semibold text-sm w-24' %>
-        <%= f.password_field :password, autocomplete: "current-password", class: "text-sm font-medium rounded w-full border border-gray-300 p-2" %>
+        <%= f.label :password, class: 'font-semibold text-xs w-24' %>
+        <%= f.password_field :password, autocomplete: "current-password", class: "text-xs font-medium rounded w-full border border-gray-300 p-2" %>
       </div>
 
       <% if devise_mapping.rememberable? %>
         <div class="flex items-center gap-2 my-2">
           <%= f.check_box :remember_me, class: "w-4 h-4" %>
-          <%= f.label :remember_me, class: "text-sm font-medium text-gray-600" %>
+          <%= f.label :remember_me, class: "text-xs font-medium text-gray-600" %>
         </div>
       <% end %>
 
       <div class="w-full mt-4">
-        <%= f.submit "Log in", class: "w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition" %>
+        <%= f.submit "Log in", class: "w-full bg-blue-600 text-white text-xs font-semibold py-2 rounded hover:bg-blue-700 transition" %>
       </div>
     <% end %>
     <%= render "devise/shared/links" %>

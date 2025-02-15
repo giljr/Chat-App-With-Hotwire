@@ -1,6 +1,6 @@
-<%= form_with(model: room, data: { turbo: "true" }, class: "flex flex-col my-3 w-full text-xs", data: { controller: 'form', action: 'submit->form#resetComponent' }) do |form| %>
+<%= form_with(model: room, data: { turbo: "true" }, class: "flex flex-col my-3 w-full text-xs px-2 py-2", data: { controller: 'form', action: 'submit->form#resetComponent' }) do |form| %>
   <% if room.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3 text-xs">
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-1 font-medium rounded-md mt-3 text-xs">
       <h2><%= pluralize(room.errors.count, "error") %> prohibited this room from being saved:</h2>
 
       <ul class="list-disc ml-6">
@@ -13,11 +13,11 @@
 
   <div class="flex flex-col gap-1 justify-center">
     <%#= form.label :name, class: 'font-semibold text-xs' %>
-    <%= form.text_field :name, placeholder: "Enter the room name",  class: ["block shadow-sm rounded-md border text-xs px-2 py-1", {"border-gray-400 focus:outline-blue-600": room.errors[:name].none?, "border-red-400 focus:outline-red-600": room.errors[:name].any?}] %>
+    <%= form.text_field :name, placeholder: "Enter the room name", maxlength: 24, class: ["block shadow-sm rounded-md border text-xs px-2 py-1", {"border-gray-400 focus:outline-blue-600": room.errors[:name].none?, "border-red-400 focus:outline-red-600": room.errors[:name].any?}] %>
   </div>
 
   <div class="mt-auto flex justify-end">
-    <%= form.submit class: "rounded-md px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs" %>
-    <%= link_to 'Cancel', :back, class: "rounded-md px-3 py-2 bg-gray-300 hover:bg-gray-200 text-xs" %>
+    <%= form.submit class: "rounded-md px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs" %>
+    <%= link_to 'Cancel', :back, class: "rounded-md px-3 py-1 bg-gray-300 hover:bg-gray-200 text-xs" %>
   </div>
 <% end %>
