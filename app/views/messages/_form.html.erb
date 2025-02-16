@@ -1,0 +1,8 @@
+<div data-controller = "form", class="flex w-full">
+    <%= form_with(model: [room, message], id: 'message_form', class: 'w-full flex flex-col', data: { controller: 'form', action: 'submit->form#resetComponent' }) do |f| %>
+        <div class="flex w-full">
+            <%= f.text_field :message, class: 'w-full bg-white rounded shadow text-xs border border-indigo-100' %>
+            <%= f.submit class: 'bg-indigo-500 font-semibold text-white text-xs rounded p-2' %>
+        </div>
+    <% end %>
+</div>

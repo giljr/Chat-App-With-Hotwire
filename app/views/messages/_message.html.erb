@@ -1,0 +1,15 @@
+<%= turbo_frame_tag "message_#{message.id}", class: 'bg-gray-200 px-3 py-2 flex justify-between rounded items-center gap-2 shadow' do %>
+  <div class="flex gap-1">
+    <span class="text-indigo-300 text-sm">
+      <%= message.user.email %>
+    </span>
+    <span class="font-semibold text-sm">
+      <%= message.message %>
+    </span>
+  </div>
+
+  <div class="flex gap-3">
+    <%= link_to 'Edit', edit_room_message_path(message, room_id: message.room), class:'text-xs bg-indigo-500 text-white py-1 px-3 rounded' %>
+    <%= button_to 'Delete', room_message_path(message.room, message), class:'text-xs bg-red-200 py-1 px-3 rounded', method: :delete %>
+  </div>
+<% end %>
